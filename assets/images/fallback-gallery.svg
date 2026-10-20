@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360" role="img" aria-label="Gallery image placeholder">
+  <rect width="480" height="360" fill="#e8f3ec"/>
+  <g fill="none" stroke="#1f6f4a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.85">
+    <rect x="150" y="110" width="180" height="130" rx="12"/>
+    <circle cx="200" cy="155" r="14"/>
+    <path d="M170 220l50-45 40 35 30-25 30 35"/>
+  </g>
+  <text x="240" y="300" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#5d6b62">AMN Gallery</text>
+</svg>

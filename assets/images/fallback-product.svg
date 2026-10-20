@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360" role="img" aria-label="Product image placeholder">
+  <rect width="480" height="360" fill="#f3ede1"/>
+  <g fill="none" stroke="#1f6f4a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.85">
+    <path d="M240 110 140 155v90l100 45 100-45v-90L240 110z"/>
+    <path d="M140 155l100 45 100-45"/>
+    <path d="M240 200v90"/>
+  </g>
+  <text x="240" y="320" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#5d6b62">AMN International</text>
+</svg>

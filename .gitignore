@@ -1,0 +1,8 @@
+/config/.env
+/storage/logs/*.log
+/uploads/*
+!/uploads/**/.htaccess
+/assets/vendor/
+/node_modules/
+_envcheck.txt
+_nettest.ps1

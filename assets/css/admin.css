@@ -1,0 +1,32 @@
+/* AMN International — admin panel styles */
+body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #f4f5f7;
+    color: #1f2937;
+    font-size: 15px;
+}
+.navbar { background: #fff; }
+.navbar-brand { font-weight: 800; color: #175237; }
+.navbar-brand svg { color: #1f6f4a; }
+.nav-link { font-weight: 600; color: #44504a; font-size: 0.9rem; }
+.nav-link:hover { color: #1f6f4a; }
+.nav-link.active { color: #175237; }
+.card { border-radius: 14px; }
+.card-header { font-weight: 700; }
+.stat-card .card-title { letter-spacing: 0.04em; }
+.table { --bs-table-bg: transparent; }
+.table thead th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: #6b7280; }
+.badge { font-weight: 600; }
+.btn { font-weight: 600; }
+.form-label { font-weight: 600; font-size: 0.86rem; }
+.form-text { font-size: 0.78rem; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .btn:focus-visible {
+    outline: 3px solid rgba(31, 111, 74, 0.45); outline-offset: 2px;
+}
+.nav-pills .nav-link { border-radius: 10px; }
+.list-group-item { border-color: #eceae4; }
+footer { background: #fff; }
+hr { border-color: #eceae4; }
+@media (max-width: 991.98px) {
+    .navbar-nav .nav-item { border-bottom: 1px solid #f0efeb; }
+}

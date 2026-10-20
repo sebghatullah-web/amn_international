@@ -1,0 +1,2 @@
+# Deny direct web access to private configuration files.
+Require all denied

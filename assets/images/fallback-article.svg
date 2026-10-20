@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360" role="img" aria-label="Article image placeholder">
+  <rect width="480" height="360" fill="#f3ede1"/>
+  <g fill="none" stroke="#1f6f4a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.85">
+    <path d="M180 100h90l50 50v110H180V100z"/>
+    <path d="M270 100v50h50"/>
+    <path d="M210 180h80M210 210h80M210 240h50"/>
+  </g>
+  <text x="240" y="320" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#5d6b62">AMN Insights</text>
+</svg>
