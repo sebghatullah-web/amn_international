@@ -1,9 +1,23 @@
 <?php
 /**
- * Admin layout.
+ * Admin layout — sidebar + top header + main content.
  */
 $flashes = App\Core\Session::pullFlashes();
 $user = App\Core\Auth::user();
+$navItems = [
+    ['label' => __('admin.dashboard'),   'path' => '/admin',                            'icon' => 'grid'],
+    ['label' => __('admin.products'),    'path' => '/admin/products',                   'icon' => 'box'],
+    ['label' => __('admin.categories'),  'path' => '/admin/categories',                 'icon' => 'tag'],
+    ['label' => __('admin.services'),    'path' => '/admin/services',                   'icon' => 'settings'],
+    ['label' => __('admin.steps'),       'path' => '/admin/steps',                      'icon' => 'list'],
+    ['label' => __('admin.gallery'),     'path' => '/admin/gallery',                    'icon' => 'image'],
+    ['label' => __('admin.articles'),    'path' => '/admin/articles',                   'icon' => 'doc'],
+    ['label' => __('admin.inquiries'),   'path' => '/admin/inquiries',                  'icon' => 'quote'],
+    ['label' => __('admin.subscribers'), 'path' => '/admin/subscribers',                'icon' => 'mail'],
+    ['label' => __('admin.settings'),    'path' => '/admin/settings',                   'icon' => 'gear'],
+    ['label' => __('admin.users'),       'path' => '/admin/users',                      'icon' => 'headset'],
+];
+$currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
 ?>
 <!DOCTYPE html>
 <html lang="en" class="admin-html">
@@ -17,59 +31,100 @@ $user = App\Core\Auth::user();
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?= e(asset('css/admin.css')) ?>">
 </head>
-<body class="d-flex flex-column min-vh-100">
-<nav class="navbar navbar-expand-lg border-bottom">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="<?= e(url('admin')) ?>">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
-            <span><?= e(setting('company_name')) ?></span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
+<body class="d-flex flex-column min-vh-100 admin-body">
+<!-- ================= SIDEBAR ================= -->
+<aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-brand d-flex align-items-center gap-2 px-3 py-3 border-bottom">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+        <span class="fw-bold d-none d-sm-inline admin-sidebar-brand-text"><?= e(setting('company_name')) ?></span>
+    </div>
+    <nav class="admin-sidebar-nav flex-grow-1 py-3">
+        <ul class="list-unstyled ps-0 mb-0">
+            <?php foreach ($navItems as $item): ?>
+                <?php
+                $isActive = $item['path'] === '/admin'
+                    ? ($currentPath === rtrim(BASE_URL, '/') . '/admin' || ($currentPath === rtrim(BASE_URL, '/')))
+                    : strpos($currentPath, BASE_URL . rtrim($item['path'], '/')) === 0;
+                ?>
+                <li class="mb-1">
+                    <a class="admin-nav-link d-flex align-items-center gap-2 px-3 py-2 rounded-3 text-decoration-none <?php echo $isActive ? 'active' : '' ?>"
+                       href="<?= e(url($item['path'])) ?>"
+                       aria-current="<?php echo $isActive ? 'page' : 'false' ?>">
+                        <?php icon($item['icon'], 18) ?>
+                        <span class="admin-nav-label d-none d-sm-inline"><?= e($item['label']) ?></span>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </nav>
+    <div class="admin-sidebar-footer border-top p-3">
+        <a class="btn btn-outline-secondary btn-sm w-100 mb-2" href="<?= e(url('/')) ?>" target="_blank" rel="noopener"><?= __('admin.view_site') ?></a>
+        <a class="btn btn-danger btn-sm w-100" href="<?= e(url('admin/logout')) ?>" onclick="return confirm('<?= e(__('admin.confirm_delete')) ?>')"><?= __('admin.logout') ?></a>
+    </div>
+</aside>
+<div class="admin-sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ================= TOP HEADER ================= -->
+<header class="admin-header border-bottom">
+    <div class="container d-flex align-items-center justify-content-between py-2">
+        <button class="btn btn-link text-reset p-0 d-sm-none" id="sidebarToggle" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link<?= active_if($_SERVER['REQUEST_URI'] === BASE_URL . '/admin' || strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/') === false ? ' active' : '') ?>" href="<?= e(url('admin')) ?>"><?= __('admin.dashboard') ?></a></li>
-                <li class="nav-item"><a class="nav-link<?= active_if(strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/products') === 0) ?>" href="<?= e(url('admin/products')) ?>"><?= __('admin.products') ?></a></li>
-                <li class="nav-item"><a class="nav-link<?= active_if(strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/categories') === 0) ?>" href="<?= e(url('admin/categories')) ?>"><?= __('admin.categories') ?></a></li>
-                <li class="nav-item"><a class="nav-link<?= active_if(strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/services') === 0) ?>" href="<?= e(url('admin/services')) ?>"><?= __('admin.services') ?></a></li>
-                <li class="nav-item"><a class="nav-link<?= active_if(strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/steps') === 0) ?>" href="<?= e(url('admin/steps')) ?>"><?= __('admin.steps') ?></a></li>
-                <li class="nav-item"><a class="nav-link<?= active_if(strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/gallery') === 0) ?>" href="<?= e(url('admin/gallery')) ?>"><?= __('admin.gallery') ?></a></li>
-                <li class="nav-item"><a class="nav-link<?= active_if(strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/articles') === 0) ?>" href="<?= e(url('admin/articles')) ?>"><?= __('admin.articles') ?></a></li>
-                <li class="nav-item"><a class="nav-link<?= active_if(strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/inquiries') === 0) ?>" href="<?= e(url('admin/inquiries')) ?>"><?= __('admin.inquiries') ?></a></li>
-                <li class="nav-item"><a class="nav-link<?= active_if(strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/subscribers') === 0) ?>" href="<?= e(url('admin/subscribers')) ?>"><?= __('admin.subscribers') ?></a></li>
-                <li class="nav-item"><a class="nav-link<?= active_if(strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/settings') === 0) ?>" href="<?= e(url('admin/settings')) ?>"><?= __('admin.settings') ?></a></li>
-                <li class="nav-item"><a class="nav-link<?= active_if(strpos($_SERVER['REQUEST_URI'] ?? '', '/admin/users') === 0) ?>" href="<?= e(url('admin/users')) ?>"><?= __('admin.users') ?></a></li>
-            </ul>
-            <div class="d-flex align-items-center">
-                <a class="btn btn-outline-secondary btn-sm me-2" href="<?= e(url('/')) ?>" target="_blank" rel="noopener"><?= __('admin.view_site') ?></a>
-                <a class="btn btn-danger btn-sm" href="<?= e(url('admin/logout')) ?>" onclick="return confirm('<?= __('admin.confirm_delete') ?>')"><?= __('admin.logout') ?></a>
-            </div>
+        <a class="navbar-brand d-none d-sm-flex align-items-center gap-2 text-decoration-none" href="<?= e(url('admin')) ?>">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+            <span class="fw-bold admin-sidebar-brand-text"><?= e(setting('company_name')) ?></span>
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="d-none d-sm-inline text-muted small admin-header-user"><?= e($user['name'] ?? '') ?></span>
+            <span class="badge bg-primary text-white d-none d-sm-inline admin-header-role"><?= __('admin.role_admin') ?></span>
         </div>
     </div>
-</nav>
+</header>
 
-<div class="container mt-4 flex-grow-1">
-    <?php foreach ($flashes as $flash): ?>
-        <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : e($flash['type']) ?> alert-dismissible fade show">
-            <?= e($flash['message']) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endforeach; ?>
-    <?= $content ?? '' ?>
-</div>
+<main class="admin-main flex-grow-1">
+    <div class="container mt-4 flex-grow-1">
+        <?php foreach ($flashes as $flash): ?>
+            <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : e($flash['type']) ?> alert-dismissible fade show">
+                <?= e($flash['message']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endforeach; ?>
+        <?= $content ?? '' ?>
+    </div>
+</main>
 
-<footer class="mt-auto py-3 border-top">
-    <div class="container text-muted small">
+<footer class="mt-auto py-3 border-top admin-footer">
+    <div class="container text-muted small d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2">
         <span><?= __('admin.role_admin') ?>: <?= e($user['name'] ?? '') ?> (<?= e($user['email'] ?? '') ?>)</span>
-        &nbsp;·&nbsp;
         <span>&copy; <?= date('Y') ?> <?= e(setting('company_name')) ?></span>
-        &nbsp;·&nbsp;
         <a class="text-decoration-none text-muted" href="<?= e(url('/')) ?>"><?= __('admin.view_site') ?></a>
     </div>
 </footer>
 
 <script src="<?= e(asset('vendor/js/bootstrap.bundle.min.js')) ?>"></script>
 <script src="<?= e(asset('js/admin.js')) ?>"></script>
+<script>
+/* Sidebar toggle (mobile) */
+var sidebar = document.getElementById('adminSidebar');
+var toggle = document.getElementById('sidebarToggle');
+var overlay = document.getElementById('sidebarOverlay');
+function openSidebar() { sidebar.classList.add('show'); overlay.classList.add('show'); document.body.classList.add('sidebar-open'); }
+function closeSidebar() { sidebar.classList.remove('show'); overlay.classList.remove('show'); document.body.classList.remove('sidebar-open'); }
+if (sidebar && toggle && overlay) {
+    toggle.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
+    sidebar.querySelectorAll('.admin-nav-link').forEach(function (link) {
+        link.addEventListener('click', function () {
+            if (window.innerWidth < 992) closeSidebar();
+        });
+    });
+    document.addEventListener('click', function (e) {
+        if (window.innerWidth < 992 && sidebar.classList.contains('show') &&
+            !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+            closeSidebar();
+        }
+    });
+}
+</script>
 </body>
 </html>

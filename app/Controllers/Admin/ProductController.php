@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\AdminController;
 use App\Core\Csrf;
+use App\Core\Logger;
 use App\Core\Validator;
 use App\Core\Upload;
 use App\Models\Category;
@@ -185,29 +186,38 @@ class ProductController extends AdminController
             'updated_at'          => date('Y-m-d H:i:s'),
         ];
 
-        if ($id) {
-            Product::updateById($id, $row);
-        } else {
-            $row['created_at'] = date('Y-m-d H:i:s');
-            $id = Product::insert($row);
-        }
+        try {
+            if ($id) {
+                Product::updateById($id, $row);
+            } else {
+                $row['created_at'] = date('Y-m-d H:i:s');
+                $id = Product::insert($row);
+            }
 
-        Product::syncSpecs((int)$id, $_POST['specs'] ?? []);
+            Product::syncSpecs((int)$id, $_POST['specs'] ?? []);
 
-        // Handle new image uploads (upload_image_1, upload_image_2, ...)
-        foreach ($_FILES as $key => $file) {
-            if (strpos($key, 'upload_image_') !== 0) {
-                continue;
+            // Handle new image uploads (upload_image_1, upload_image_2, ...)
+            foreach ($_FILES as $key => $file) {
+                if (strpos($key, 'upload_image_') !== 0) {
+                    continue;
+                }
+                if (empty($file['name'])) {
+                    continue;
+                }
+                $uploaded = Upload::image($file, 'products');
+                if ($uploaded['ok']) {
+                    $n = substr($key, strlen('upload_image_'));
+                    $alt = trim($_POST['upload_alt_' . $n] ?? '');
+                    ProductImage::add((int)$id, $uploaded['path'], $alt !== '' ? $alt : $row['name']);
+                }
             }
-            if (empty($file['name'])) {
-                continue;
+        } catch (\Throwable $e) {
+            Logger::error('ProductController::save failed: ' . $e->getMessage() . ' | id=' . var_export($id, true));
+            if ($this->isAjax()) {
+                $this->json(['success' => false, 'message' => __('errors.generic')], 500);
             }
-            $uploaded = Upload::image($file, 'products');
-            if ($uploaded['ok']) {
-                $n = substr($key, strlen('upload_image_'));
-                $alt = trim($_POST['upload_alt_' . $n] ?? '');
-                ProductImage::add((int)$id, $uploaded['path'], $alt !== '' ? $alt : $row['name']);
-            }
+            $this->flash('error', __('errors.generic'));
+            $this->redirect('admin/products');
         }
 
         if ($this->isAjax()) {

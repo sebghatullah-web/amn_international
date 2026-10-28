@@ -26,8 +26,7 @@ $val = function (string $key, string $default = '') use ($s) { return e($s[$key]
         </ul>
 
         <div class="tab-content">
-            <?php if ($tab === 'general'): ?>
-                <div class="tab-pane fade show active" id="panel-general" role="tabpanel">
+                <div class="tab-pane fade<?= $tab === 'general' ? ' show active' : '' ?>" id="panel-general" role="tabpanel">
                     <form method="post" action="<?= e(url('admin/settings/general')) ?>" enctype="multipart/form-data">
                         <?= csrf_field() ?>
                         <div class="row g-3 mb-4">
@@ -57,9 +56,7 @@ $val = function (string $key, string $default = '') use ($s) { return e($s[$key]
                         <button class="btn btn-primary" type="submit"><?= __('admin.save') ?></button>
                     </form>
                 </div>
-            <?php endif; ?>
-            <?php if ($tab === 'contact'): ?>
-                <div class="tab-pane fade show active" id="panel-contact" role="tabpanel">
+                <div class="tab-pane fade<?= $tab === 'contact' ? ' show active' : '' ?>" id="panel-contact" role="tabpanel">
                     <form method="post" action="<?= e(url('admin/settings/contact')) ?>">
                         <?= csrf_field() ?>
                         <div class="row g-3 mb-4">
@@ -111,10 +108,7 @@ $val = function (string $key, string $default = '') use ($s) { return e($s[$key]
                         <button class="btn btn-primary" type="submit"><?= __('admin.save') ?></button>
                     </form>
                 </div>
-            <?php endif; ?>
-
-            <?php if ($tab === 'currency'): ?>
-                <div class="tab-pane fade show active" id="panel-currency" role="tabpanel">
+                <div class="tab-pane fade<?= $tab === 'currency' ? ' show active' : '' ?>" id="panel-currency" role="tabpanel">
                     <form method="post" action="<?= e(url('admin/settings/currency')) ?>">
                         <?= csrf_field() ?>
                         <div class="row g-3 mb-4">
@@ -139,9 +133,7 @@ $val = function (string $key, string $default = '') use ($s) { return e($s[$key]
                         <button class="btn btn-primary" type="submit"><?= __('admin.save') ?></button>
                     </form>
                 </div>
-            <?php endif; ?>
-            <?php if ($tab === 'home'): ?>
-                <div class="tab-pane fade show active" id="panel-home" role="tabpanel">
+                <div class="tab-pane fade<?= $tab === 'home' ? ' show active' : '' ?>" id="panel-home" role="tabpanel">
                     <form method="post" action="<?= e(url('admin/settings/home')) ?>" enctype="multipart/form-data">
                         <?= csrf_field() ?>
                         <h6 class="fw-bold border-bottom pb-2 mb-3"><?= __('admin.home_tab') ?> — Hero</h6>
@@ -224,9 +216,7 @@ $val = function (string $key, string $default = '') use ($s) { return e($s[$key]
                         <button class="btn btn-primary" type="submit"><?= __('admin.save') ?></button>
                     </form>
                 </div>
-            <?php endif; ?>
-            <?php if ($tab === 'seo'): ?>
-                <div class="tab-pane fade show active" id="panel-seo" role="tabpanel">
+                <div class="tab-pane fade<?= $tab === 'seo' ? ' show active' : '' ?>" id="panel-seo" role="tabpanel">
                     <form method="post" action="<?= e(url('admin/settings/seo')) ?>">
                         <?= csrf_field() ?>
                         <div class="row g-3 mb-4">
@@ -252,10 +242,7 @@ $val = function (string $key, string $default = '') use ($s) { return e($s[$key]
                         <button class="btn btn-primary" type="submit"><?= __('admin.save') ?></button>
                     </form>
                 </div>
-            <?php endif; ?>
-
-            <?php if ($tab === 'footer'): ?>
-                <div class="tab-pane fade show active" id="panel-footer" role="tabpanel">
+                <div class="tab-pane fade<?= $tab === 'footer' ? ' show active' : '' ?>" id="panel-footer" role="tabpanel">
                     <form method="post" action="<?= e(url('admin/settings/footer')) ?>">
                         <?= csrf_field() ?>
                         <div class="mb-3">
@@ -266,7 +253,6 @@ $val = function (string $key, string $default = '') use ($s) { return e($s[$key]
                         <button class="btn btn-primary" type="submit"><?= __('admin.save') ?></button>
                     </form>
                 </div>
-            <?php endif; ?>
         </div>
     </div>
 </div>

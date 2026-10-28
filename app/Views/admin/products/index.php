@@ -35,7 +35,7 @@
                         <td class="text-center small text-muted"><?= e($p['category_name'] ?? '-') ?></td>
                         <td class="text-center">
                             <?php if ($p['is_price_published'] && $p['price_usd'] !== null): ?>
-                                <span class="badge text-bg-primary small"><?= e(Product::priceLabel($p)) ?></span>
+                                <span class="badge text-bg-primary small"><?= e(\App\Models\Product::priceLabel($p)) ?></span>
                             <?php else: ?>
                                 <span class="badge text-bg-secondary small"><?= __('admin.no_price') ?></span>
                             <?php endif; ?>

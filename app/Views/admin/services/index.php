@@ -15,7 +15,7 @@
                 <?php foreach ($result['rows'] as $s): ?>
                     <tr>
                         <td><?= (int)$s['id'] ?></td>
-                        <td><?= e($s['title']) ?></td>
+                        <td><?= e($s['name']) ?></td>
                         <td class="text-muted small"><?= e($s['slug']) ?></td>
                         <td class="text-center"><span class="badge text-bg-<?= $s['is_active'] ? 'success' : 'secondary' ?> small"><?= $s['is_active'] ? __('admin.active') : __('admin.inactive') ?></span></td>
                         <td class="text-end">

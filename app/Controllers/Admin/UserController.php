@@ -24,11 +24,12 @@ class UserController extends AdminController
         $total = User::count($where, $params);
         $pages = User::pages($total, 15);
         $page = max(1, min($page, $pages));
-        $users = User::run(
+        $stmt = User::db()->prepare(
             'SELECT id, name, email, role, is_active, created_at, last_login
-             FROM users WHERE ' . $where . ' ORDER BY id DESC LIMIT ' . ($page - 1) * 15 . ', 15',
-            $params
-        )->fetchAll();
+             FROM users WHERE ' . $where . ' ORDER BY id DESC LIMIT ' . ($page - 1) * 15 . ', 15'
+        );
+        $stmt->execute($params);
+        $users = $stmt->fetchAll();
         $this->view('admin/users/index', [
             'title'   => __('admin.users') . ' | ' . setting('company_name'),
             'users'   => $users,

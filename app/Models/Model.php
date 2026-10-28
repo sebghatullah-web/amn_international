@@ -61,7 +61,7 @@ abstract class Model
             return false;
         }
         $sets = implode(',', array_map(fn($c) => "`$c` = ?", array_keys($data)));
-        $stmt = self::run('UPDATE `' . static::$table . '` SET ' . $sets . ' WHERE id = ?', array_values($data));
+        $stmt = self::run('UPDATE `' . static::$table . '` SET ' . $sets . ' WHERE id = ?', array_merge(array_values($data), [$id]));
         return $stmt->rowCount() >= 0;
     }
 
