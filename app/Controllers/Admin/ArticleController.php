@@ -95,6 +95,10 @@ class ArticleController extends AdminController
 
     private function save(?int $id): void
     {
+        if (!Csrf::verify()) {
+            $this->json(['success' => false, 'message' => __('errors.csrf')], 419);
+        }
+
         $validator = new Validator($_POST, [
             'title'          => 'required|min:2|max:200',
             'slug'           => 'nullable|max:200',
@@ -102,13 +106,15 @@ class ArticleController extends AdminController
             'body'           => 'max:10000',
             'author'         => 'max:100',
             'category'       => 'max:100',
+            'seo_title'      => 'max:200',
+            'seo_description'=> 'max:300',
             'is_published'   => 'nullable|in:1',
         ]);
         if ($validator->fails()) {
             $this->json(['success' => false, 'message' => __('errors.generic'), 'errors' => $validator->errors()], 422);
         }
         $data = $validator->validated();
-        $slug = Article::uniqueSlug($data['slug'] ?: $data['title'], $id);
+        $slug = Article::uniqueSlug(slugify($data['slug'] ?: $data['title']), $id);
 
         $row = [
             'title'       => mb_substr($data['title'], 0, 200),
@@ -118,8 +124,8 @@ class ArticleController extends AdminController
             'author'      => mb_substr($data['author'] ?? setting('company_name'), 0, 100),
             'category'    => mb_substr($data['category'] ?? '', 0, 100),
             'is_published'=> isset($data['is_published']) ? 1 : 0,
-            'seo_title'   => mb_substr($data['seo_title'] ?? '', 0, 200),
-            'seo_desc'    => mb_substr($data['seo_description'] ?? '', 0, 300),
+            'seo_title'       => mb_substr($data['seo_title'] ?? '', 0, 200),
+            'seo_description' => mb_substr($data['seo_description'] ?? '', 0, 300),
             'updated_at'  => date('Y-m-d H:i:s'),
         ];
 
@@ -128,17 +134,22 @@ class ArticleController extends AdminController
             $row['image'] = $uploaded['path'];
         }
 
-        if ($id) {
-            $old = Article::find($id);
-            if (!empty($row['image'])) { Upload::delete($old['image']); }
-            if (!empty($data['is_published']) && empty($old['published_at'])) {
-                $row['published_at'] = date('Y-m-d H:i:s');
+        try {
+            if ($id) {
+                $old = Article::find($id);
+                if (!empty($row['image'])) { Upload::delete($old['image']); }
+                if (!empty($data['is_published']) && empty($old['published_at'])) {
+                    $row['published_at'] = date('Y-m-d H:i:s');
+                }
+                Article::updateById($id, $row);
+            } else {
+                $row['created_at'] = date('Y-m-d H:i:s');
+                $row['published_at'] = !empty($data['is_published']) ? date('Y-m-d H:i:s') : null;
+                Article::insert($row);
             }
-            Article::updateById($id, $row);
-        } else {
-            $row['created_at'] = date('Y-m-d H:i:s');
-            $row['published_at'] = !empty($data['is_published']) ? date('Y-m-d H:i:s') : null;
-            Article::insert($row);
+        } catch (\Throwable $e) {
+            error_log('ArticleController::save failed: ' . $e->getMessage() . ' | id=' . var_export($id, true));
+            $this->json(['success' => false, 'message' => __('errors.generic')], 500);
         }
 
         if ($this->isAjax()) {

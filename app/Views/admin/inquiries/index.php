@@ -41,9 +41,8 @@
                         <td class="text-center"><span class="badge text-bg-<?= $r['status'] === 'new' ? 'warning text-dark' : ($r['status'] === 'replied' ? 'success' : 'secondary') ?> small"><?= e($r['status']) ?></span></td>
                         <td class="text-end">
                             <a class="btn btn-sm btn-outline-primary" href="<?= e(url('admin/inquiries/' . $r['id'])) ?>"><?= __('common.view_details') ?></a>
-                            <form class="d-inline" action="<?= e(url('admin/inquiries/' . $r['id'])) ?>" method="post" onsubmit="return confirm('<?= e(__('admin.confirm_delete')) ?>')" style="margin:0">
+                            <form class="d-inline" action="<?= e(url('admin/inquiries/' . $r['id'] . '/delete')) ?>" method="post" onsubmit="return confirm('<?= e(__('admin.confirm_delete')) ?>')" style="margin:0">
                                 <?= csrf_field() ?>
-                                <input type="hidden" name="_method" value="DELETE">
                                 <button class="btn btn-sm btn-outline-danger" type="submit"><?= __('admin.delete') ?></button>
                             </form>
                         </td>

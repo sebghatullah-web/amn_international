@@ -49,7 +49,7 @@
                 </div>
 
                 <div id="products-grid-container">
-                    <?php include __DIR__ . '/../partials/product-grid.php'; ?>
+                    <?php $products = $result['rows']; include __DIR__ . '/../partials/product-grid.php'; ?>
                 </div>
 
                 <?php if ($result['pages'] > 1): ?>

@@ -1,141 +1,196 @@
-# AMN International
+﻿# AMN International
 
-A complete, production-ready, responsive PHP/MySQL MVC website for **AMN International** — a distributor of electrostatic discharge (ESD) control products and solutions.
+A responsive PHP/MySQL website and administration panel for AMN International.
 
 ## Features
 
-- **Public site** — Home, About Us, Products catalog with search/filter/sort + pagination, Product Details, Services, Import Process, Image Gallery, News/Articles, Contact Us, Request a Quote.
-- **Product pricing** — USD + automatically calculated AFN using a DB-managed exchange rate (`exchange_rates.usd_to_afn`).
-- **Quote/contact flows** — Client & server validation, AJAX submission, DB storage, inbox with status management (new/read/replied).
-- **Newsletter** — AJAX signup with duplicate handling.
-- **Admin panel** — Dashboard, settings (general/contact/home/currency/SEO/footer), categories, products (CRUD + image upload + specs + publish/unpublish), services, import steps, gallery, news/articles, homepage sections, banners, exchange rate, inquiries, newsletter subscribers, SEO settings, users, profile password change.
-- **Authentication** — Session-based admin login, CSRF protection, brute-force lockout (5 tries / 5 min), password hashing.
-- **Responsive UI** — Bootstrap 5, vanilla JS, focus-state polish, SVG icons, lazy image fallbacks.
-- **Language-ready** — PHP translation helper + string keys organized for future Persian i18n.
+### Public website
+
+- Home page with categories, featured/new/popular products, services, articles, and settings
+- Product catalog with search, category filtering, sorting, and pagination
+- Product details, related products, specifications, and price information
+- Services and import-process pages
+- Gallery and published news/articles
+- Contact and quotation forms
+- Newsletter subscription
+
+### Administration panel
+
+- Dashboard and site settings
+- Categories, products, services, import steps, gallery, articles, and users CRUD
+- Product image uploads, primary images, specifications, and publication flags
+- Inquiry inbox with new/read/replied status
+- Subscriber management
+- User roles and password management
+- CSRF protection, validation, image validation, and prepared database queries
 
 ## Requirements
 
-- **PHP** 8.0+ (tested with PHP 8.2)
-- **MySQL / MariaDB** 5.7+ (tested with MariaDB)
-- **Apache** with `mod_rewrite` (strongly recommended) or fallback `?p=/path` mode
-- **XAMPP** (Windows) — Apache + PHP + MySQL
+- PHP 8.0 or newer (PHP 8.2 recommended)
+- MySQL or MariaDB
+- Apache with URL rewriting, or the `?p=/path` fallback
+- XAMPP on Windows is supported
 
-## Admin Credentials
+## Installation on XAMPP
 
-After importing `seed.sql`, the default admin account is:
+1. Copy the project to `C:\xampp\htdocs\AMN_INTERNATIONAL`.
+2. Copy `config\.env.example` to `config\.env` and update the database and application values:
 
-| Field | Value |
-|-------|-------|
-| **Email** | `admin@amn-international.com` |
-| **Password** | `password` |
+   ```env
+   APP_URL=http://localhost/AMN_INTERNATIONAL
+   APP_DEBUG=true
+   URL_REWRITE=true
 
-⚠️ **Change the password after first login.**
-
-## Quick Start (XAMPP)
-
-1. **Copy the project** into your XAMPP `htdocs` folder:
-   ```pwsh
-   cp -r AMN_INTERNATIONAL c:\xampp\htdocs\
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_NAME=amn_international
+   DB_USER=root
+   DB_PASS=
+   DB_CHARSET=utf8mb4
    ```
 
-2. **Create the database** in phpMyAdmin (or via CLI):
+3. Create the MySQL database:
+
    ```sql
-   CREATE DATABASE IF NOT EXISTS amn_international CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-## Development Workflow
+   CREATE DATABASE IF NOT EXISTS amn_international
+   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
 
-1. Copy `config/.env.example` → `config/.env`
-2. Run `schema.sql` then `seed.sql` in your database
-3. Start Apache + MySQL
-4. Visit `/` and `/admin/login`
+4. Import the complete database dump:
 
-## Architecture
+   ```pwsh
+   mysql -u root -p amn_international < database\amn_international.sql
+   ```
 
-```
-public/            # Front controller + .htaccess routing
-config/            # .env, config.php, .htaccess
+   Alternatively, import `database\amn_international.sql` from phpMyAdmin.
+
+5. Start Apache and MySQL from the XAMPP Control Panel.
+6. Open:
+   - Public website: `http://localhost/AMN_INTERNATIONAL/`
+   - Administration login: `http://localhost/AMN_INTERNATIONAL/admin/login`
+
+## Default Admin Account
+
+After importing the database dump, use the credentials configured in the database seed data.
+Change the password immediately after the first successful login.
+
+## Project Structure
+
+```text
 app/
-  bootstrap.php    # Autoloader, error handlers, session
-## API Endpoints (AJAX)
+├── Controllers/       Public and admin controllers
+├── Core/              App, router, database, session, CSRF, uploads, and validation
+├── Helpers/           Shared helper functions and translations
+├── Models/            Database models
+└── Views/             Public/admin PHP templates and partials
+assets/                CSS, JavaScript, images, and Bootstrap files
+config/                Environment and application configuration
+database/              Complete MySQL database dump
+storage/logs/          Application logs
+uploads/               Uploaded images grouped by module
+tools/                 Development utilities
+index.php              Front controller
+```
+
+## Routes and AJAX
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/ajax/products` | Product search/filter/sort/paginate |
-| POST | `/ajax/contact` | Contact form / quote |
-| POST | `/ajax/newsletter` | Newsletter signup |
-| POST | `/admin/products` | Create product |
-| POST | `/admin/products/{id}` | Update product |
-| POST | `/admin/products/{id}/delete` | Delete product |
-| POST | `/admin/products/images/{id}/primary` | Set primary image |
-| POST | `/admin/categories/{id}/toggle` | Toggle category active |
-| ... | (see routes) | Many more |
+| GET | `/` | Home page |
+| GET | `/products` | Public product catalog |
+| GET | `/ajax/products` | Product search/filter AJAX response |
+| GET | `/services` | Public services |
+| GET | `/import-process` | Import process |
+| GET | `/gallery` | Public gallery |
+| GET | `/news` | Published news/articles |
+| POST | `/ajax/contact` | Contact/quote submission |
+| POST | `/ajax/newsletter` | Newsletter subscription |
+| POST | `/admin/{module}` | Create an admin record |
+| POST | `/admin/{module}/{id}` | Update an admin record |
+| POST | `/admin/{module}/{id}/delete` | Delete an admin record |
 
-All AJAX responses return JSON: `{ success: bool, message: string, data?: mixed }`.
+The legacy `_method=DELETE` form convention is also routed defensively to the dedicated `/delete` endpoint.
+
+## Admin CRUD Notes
+
+- Product availability values include `in_stock`, `out_of_stock`, `made_to_order`, and `unavailable`.
+- Product, category, article, service, gallery, and user create/edit operations validate CSRF tokens and submitted fields.
+- Creating or editing a gallery item does not require selecting a new image unless the image is being replaced.
+- Services use the `title` database column; legacy `name` references remain supported in views.
+- Gallery records use the `path` column for the stored image.
+- Article records use `body` and `seo_description`.
+- Inquiry detail pages resolve the selected product through the product relation rather than relying on a `product_name` database column.
+- `created_at` and `updated_at` are supplied explicitly where required by database constraints.
+
+## Public Product Catalog Fixes
+
+The product catalog now returns the active product rows through the correct product-grid partial:
+
+- Initial server-rendered product lists receive the `$products` variable used by the product card partial.
+- AJAX product filtering uses `partials/product-grid`.
+- Active products with a valid category or product relation are displayed normally.
+- Missing fields are rendered with safe fallbacks instead of PHP array-key warnings.
+
+## Development and Troubleshooting
+
+### Verify PHP files
+
+```pwsh
+Get-ChildItem app, index.php -Recurse -Filter *.php | ForEach-Object {
+    & C:\xampp\php\php.exe -l $_.FullName
+}
+```
+
+### Database connection
+
+Review `config\.env` and confirm that the database exists, credentials are correct, and MySQL is running.
+
+### Uploads
+
+Ensure the project `uploads\` directory is writable by Apache. Uploaded files are stored outside PHP source files under module-specific directories such as `uploads/products`, `uploads/services`, and `uploads/gallery`.
+
+### Logs
+
+Runtime errors are written to:
+
+```text
+storage/logs/app.log
+```
+
+### Array-key warnings
+
+Views should use fallbacks for compatibility with legacy database schemas, for example:
+
+```php
+$s['title'] ?? $s['name'] ?? ''
+$product['name'] ?? '-'
+$product['name'] ?? '-'
+```
 
 ## Security Notes
 
-- **CSRF tokens** on all POST forms.
-- **Password hashing** with `password_hash()` / `password_verify()`.
-- **Upload validation** — MIME type check via `finfo`, `getimagesize()`, file size limits, random filenames.
-- **Prepared statements** everywhere.
-- `.env` and `config/` are protected by `.htaccess` (deny access).
-- `uploads/` only serves via `upload_url()` which prevents path traversal.
-- Session is regenerated on login and after privilege changes.
+- CSRF validation is required for state-changing POST requests.
+- Passwords must use `password_hash()` and `password_verify()`.
+- Image uploads are checked by MIME type and file-size limits.
+- Database writes use PDO prepared statements.
+- Sessions and authentication cookies use secure application session settings.
+- Set `APP_DEBUG=false` in production.
 
-## Deployment
+## Deployment Checklist
 
 1. Set `APP_DEBUG=false`.
-2. Set `APP_URL` to the production domain.
-3. Ensure `uploads/` and `storage/logs/` are writable by the web server.
-4. Disable `URL_REWRITE` only if your host doesn't support it (falls back to `?p=/path`).
-5. Remove `config/.env.example` documentation references.
-6. Run `database/schema.sql` + `seed.sql` on the production DB.
+2. Set the production `APP_URL` and database credentials in `config\.env`.
+3. Import `database\amn_international.sql`.
+4. Ensure `uploads\` and `storage\logs\` are writable by the web server.
+5. Enable HTTPS and secure cookies/headers as supported by the hosting environment.
+6. Change the default administrator password.
+7. Verify public pages, admin CRUD operations, uploads, settings, and email/newsletter flows.
 
-  Core/            # App, Router, Controller, Database, View, Session, Auth, Validator, Upload, Csrf, Logger
-  Models/          # Product, Category, Service, Article, GalleryImage, Inquiry, Subscriber, User, Setting, etc.
-  Views/           # Blade-style PHP templates (layouts, partials, public pages, admin)
-  Controllers/     # Public controllers + Admin controllers
-assets/            # Bootstrap, CSS, JS, images, SVG icons
-uploads/           # Product & site uploads (images)
-database/          # schema.sql + seed.sql
-storage/logs/      # Application log
-```
+## Technology Stack
 
-## Key Technologies
-
-- **PHP 8.2** — typed properties, null-safe operator, `str_contains`, `match` expressions
-- **PDO** — prepared statements, emulated prepares disabled
-- **Bootstrap 5** — responsive UI
-- **vanilla JS** — Fetch API for AJAX
-- **Apache mod_rewrite** — clean URLs (with fallback)
-
-   ```
-
-3. **Import the schema and seed data**:
-   ```pwsh
-   # In phpMyAdmin:
-   #   - Import database/schema.sql
-   #   - Import database/seed.sql
-   #
-   # Or via CLI:
-   #   mysql -u root -p amn_international < database/schema.sql
-   #   mysql -u root -p amn_international < database/seed.sql
-   ```
-
-4. **Configure environment**:
-   Copy `config/.env.example` to `config/.env` (already done in this repo) and adjust:
-   - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`
-   - `APP_URL` (e.g., `http://localhost/AMN_INTERNATIONAL`)
-   - `APP_DEBUG` (set to `false` in production)
-
-5. **Ensure upload directories are writable**:
-   ```pwsh
-   icacls c:\xampp\htdocs\AMN_INTERNATIONAL\uploads /grant "IIS_IUSRS:(OI)(CI)M" /T
-   # or for Apache on Windows:
-   icacls c:\xampp\htdocs\AMN_INTERNATIONAL\uploads /grant "Everyone:(OI)(CI)M" /T
-   ```
-
-6. **Start Apache + MySQL** in XAMPP Control Panel.
-
-7. **Visit the site**:
-   - Public: http://localhost/AMN_INTERNATIONAL/
-   - Admin: http://localhost/AMN_INTERNATIONAL/admin/login
+- PHP and PDO
+- MySQL/MariaDB
+- Bootstrap 5
+- Vanilla JavaScript and Fetch API
+- Apache URL rewriting
+- Server-rendered PHP views

@@ -3,9 +3,8 @@
         <h5 class="fw-bold mb-0"><?= $inquiry['type'] === 'quote' ? __('admin.type_quote') : __('admin.type_contact') ?> #<?= (int)$inquiry['id'] ?></h5>
         <div class="d-flex gap-2">
             <a class="btn btn-sm btn-outline-secondary" href="<?= e(url('admin/inquiries')) ?>"><?= __('admin.back') ?></a>
-            <form class="d-inline" action="<?= e(url('admin/inquiries/' . $inquiry['id'])) ?>" method="post" onsubmit="return confirm('<?= e(__('admin.confirm_delete')) ?>')">
+            <form class="d-inline" action="<?= e(url('admin/inquiries/' . $inquiry['id'] . '/delete')) ?>" method="post" onsubmit="return confirm('<?= e(__('admin.confirm_delete')) ?>')">
                 <?= csrf_field() ?>
-                <input type="hidden" name="_method" value="DELETE">
                 <button class="btn btn-sm btn-outline-danger" type="submit"><?= __('admin.delete') ?></button>
             </form>
         </div>
@@ -25,7 +24,7 @@
                     <dt class="col-sm-4 text-muted"><?= __('fields.subject') ?></dt>
                     <dd class="col-sm-8"><?= e($inquiry['subject'] ?: '-') ?></dd>
                     <dt class="col-sm-4 text-muted"><?= __('quote.product_label') ?></dt>
-                    <dd class="col-sm-8"><?= e($inquiry['product_name'] ?: '-') ?></dd>
+                    <dd class="col-sm-8"><?= e(!empty($product['name']) ? $product['name'] : ($inquiry['product_name'] ?? '-')) ?></dd>
                     <dt class="col-sm-4 text-muted"><?= __('fields.quantity') ?></dt>
                     <dd class="col-sm-8"><?= e($inquiry['quantity'] ?: '-') ?></dd>
                     <dt class="col-sm-4 text-muted"><?= __('admin.date') ?></dt>

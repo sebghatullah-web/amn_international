@@ -236,7 +236,7 @@ $whyItems = [
                 <div class="col-md-4">
                     <div class="service-card h-100">
                         <span class="service-icon"><?= icon($s['icon'] ?: 'check', 26) ?></span>
-                        <h5 class="service-title"><?= e($s['name']) ?></h5>
+                        <h5 class="service-title"><?= e($s['title'] ?? $s['name'] ?? '') ?></h5>
                         <p class="service-text"><?= e(mb_strimwidth(strip_tags($s['description']), 0, 150, '…')) ?></p>
                     </div>
                 </div>

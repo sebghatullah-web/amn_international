@@ -75,6 +75,10 @@ class ProcessStepController extends AdminController
 
     private function save(?int $id): void
     {
+        if (!Csrf::verify()) {
+            $this->json(['success' => false, 'message' => __('errors.csrf')], 419);
+        }
+
         $validator = new Validator($_POST, [
             'title'          => 'required|min:2|max:150',
             'group_name'     => 'max:80',
@@ -99,13 +103,18 @@ class ProcessStepController extends AdminController
             $row['image'] = $uploaded['path'];
         }
 
-        if ($id) {
-            $old = ProcessStep::find($id);
-            if (!empty($row['image'])) { Upload::delete($old['image']); }
-            ProcessStep::updateById($id, $row);
-        } else {
-            $row['created_at'] = date('Y-m-d H:i:s');
-            ProcessStep::insert($row);
+        try {
+            if ($id) {
+                $old = ProcessStep::find($id);
+                if (!empty($row['image'])) { Upload::delete($old['image']); }
+                ProcessStep::updateById($id, $row);
+            } else {
+                $row['created_at'] = date('Y-m-d H:i:s');
+                ProcessStep::insert($row);
+            }
+        } catch (\Throwable $e) {
+            error_log('ProcessStepController::save failed: ' . $e->getMessage() . ' | id=' . var_export($id, true));
+            $this->json(['success' => false, 'message' => __('errors.generic')], 500);
         }
 
         if ($this->isAjax()) {

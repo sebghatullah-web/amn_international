@@ -33,6 +33,10 @@ class CategoryController extends AdminController
 
     public function store(): void
     {
+        if (!Csrf::verify()) {
+            $this->json(['success' => false, 'message' => __('errors.csrf')], 419);
+        }
+
         $validator = new Validator($_POST, [
             'name'        => 'required|min:2|max:100',
             'slug'        => 'nullable|max:100',
@@ -49,7 +53,7 @@ class CategoryController extends AdminController
         }
 
         $data = $validator->validated();
-        $slug = Category::uniqueSlug($data['slug'] ?: $data['name']);
+        $slug = Category::uniqueSlug(slugify($data['slug'] ?: $data['name']));
         $uploaded = Upload::image($_FILES['image'] ?? [], 'categories');
 
         Category::insert([
@@ -60,6 +64,7 @@ class CategoryController extends AdminController
             'sort_order'   => (int)($data['sort_order'] ?? 0),
             'is_active'    => isset($data['is_active']) ? 1 : 0,
             'created_at'   => date('Y-m-d H:i:s'),
+            'updated_at'   => date('Y-m-d H:i:s'),
         ]);
 
         if ($this->isAjax()) {
@@ -85,6 +90,10 @@ class CategoryController extends AdminController
 
     public function update(int $id): void
     {
+        if (!Csrf::verify()) {
+            $this->json(['success' => false, 'message' => __('errors.csrf')], 419);
+        }
+
         $category = Category::find($id);
         if (!$category) {
             $this->json(['success' => false, 'message' => __('admin.no_results')], 404);
@@ -102,7 +111,7 @@ class CategoryController extends AdminController
         }
 
         $data = $validator->validated();
-        $slug = Category::uniqueSlug($data['slug'] ?: $data['name'], $id);
+        $slug = Category::uniqueSlug(slugify($data['slug'] ?: $data['name']), $id);
 
         $update = [
             'name'        => mb_substr($data['name'], 0, 100),
@@ -110,6 +119,7 @@ class CategoryController extends AdminController
             'description' => mb_substr($data['description'] ?? '', 0, 1000),
             'sort_order'  => (int)($data['sort_order'] ?? 0),
             'is_active'   => isset($data['is_active']) ? 1 : 0,
+            'updated_at'  => date('Y-m-d H:i:s'),
         ];
 
         if (!empty($_FILES['image']['name'])) {

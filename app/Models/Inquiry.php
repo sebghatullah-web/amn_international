@@ -71,6 +71,7 @@ class Inquiry extends Model
             'ip_address'  => substr((string)($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45),
             'status'      => 'new',
             'created_at'  => date('Y-m-d H:i:s'),
+            'updated_at'  => date('Y-m-d H:i:s'),
         ]);
     }
 }

@@ -75,6 +75,10 @@ class ServiceController extends AdminController
 
     private function save(?int $id): void
     {
+        if (!Csrf::verify()) {
+            $this->json(['success' => false, 'message' => __('errors.csrf')], 419);
+        }
+
         $validator = new Validator($_POST, [
             'title'        => 'required|min:2|max:150',
             'slug'         => 'nullable|max:150',
@@ -87,7 +91,7 @@ class ServiceController extends AdminController
             $this->json(['success' => false, 'message' => __('errors.generic'), 'errors' => $validator->errors()], 422);
         }
         $data = $validator->validated();
-        $slug = Service::uniqueSlug($data['slug'] ?: $data['title'], $id);
+        $slug = Service::uniqueSlug(slugify($data['slug'] ?: $data['title']), $id);
 
         $uploaded = Upload::image($_FILES['image'] ?? [], 'services');
         $row = [
@@ -103,13 +107,18 @@ class ServiceController extends AdminController
             $row['image'] = $uploaded['path'];
         }
 
-        if ($id) {
-            $old = Service::find($id);
-            if (!empty($row['image'])) { Upload::delete($old['image']); }
-            Service::updateById($id, $row);
-        } else {
-            $row['created_at'] = date('Y-m-d H:i:s');
-            Service::insert($row);
+        try {
+            if ($id) {
+                $old = Service::find($id);
+                if (!empty($row['image'])) { Upload::delete($old['image']); }
+                Service::updateById($id, $row);
+            } else {
+                $row['created_at'] = date('Y-m-d H:i:s');
+                Service::insert($row);
+            }
+        } catch (\Throwable $e) {
+            error_log('ServiceController::save failed: ' . $e->getMessage() . ' | id=' . var_export($id, true));
+            $this->json(['success' => false, 'message' => __('errors.generic')], 500);
         }
 
         if ($this->isAjax()) {

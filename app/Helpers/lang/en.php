@@ -173,7 +173,7 @@ $GLOBALS['lang_strings'] = [
     // ------------------------------------------------------------------
     // Forms / validation
     // ------------------------------------------------------------------
-    'fields.name' => 'Full name',
+    'fields.name' => 'Name',
     'fields.email' => 'Email address',
     'fields.phone' => 'Phone / WhatsApp',
     'fields.country' => 'Country',
@@ -183,6 +183,8 @@ $GLOBALS['lang_strings'] = [
     'fields.password' => 'Password',
     'fields.title' => 'Title',
     'fields.quantity' => 'Quantity',
+    'fields.category_id' => 'Category',
+    'fields.availability_status' => 'Availability',
 
     'validation.required' => 'The :field field is required.',
     'validation.email' => 'The :field must be a valid email address.',
@@ -201,6 +203,7 @@ $GLOBALS['lang_strings'] = [
     'upload.type' => 'Only JPG, PNG, WEBP, GIF or SVG images are allowed.',
 
     'availability.in_stock' => 'In stock',
+    'availability.out_of_stock' => 'Out of stock',
     'availability.made_to_order' => 'Made to order',
     'availability.unavailable' => 'Temporarily unavailable',
 

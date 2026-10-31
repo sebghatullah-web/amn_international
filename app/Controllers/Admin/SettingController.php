@@ -138,7 +138,7 @@ class SettingController extends AdminController
                 }
                 $d = $validator->validated();
                 $pairs = [
-                    'usd_afn_rate'       => $d['usd_afn_rate'] === '' ? '0' : $d['usd_afn_rate'],
+                    'usd_afn_rate'       => empty($d['usd_afn_rate']) ? '0' : $d['usd_afn_rate'],
                     'usd_afn_updated_at' => date('Y-m-d H:i:s'),
                     'currency_usd_code'  => $d['currency_usd_code'] ?: 'USD',
                     'currency_afn_code'  => $d['currency_afn_code'] ?: 'AFN',

@@ -117,6 +117,10 @@ class UserController extends AdminController
 
     private function save(?int $id): void
     {
+        if (!Csrf::verify()) {
+            $this->json(['success' => false, 'message' => __('errors.csrf')], 419);
+        }
+
         $validator = new Validator($_POST, [
             'name'     => 'required|min:2|max:120',
             'email'    => 'required|email|max:190',
@@ -147,14 +151,23 @@ class UserController extends AdminController
             'role'     => $data['role'] ?? 'editor',
             'is_active'=> 1,
         ];
-        if ($data['password'] !== '') {
+        if (!empty($data['password'])) {
             $row['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         }
 
-        if ($id) {
-            User::updateById($id, $row);
-        } else {
-            User::insert($row);
+        try {
+            if ($id) {
+                $row['updated_at'] = date('Y-m-d H:i:s');
+                User::updateById($id, $row);
+            } else {
+                $now = date('Y-m-d H:i:s');
+                $row['created_at'] = $now;
+                $row['updated_at'] = $now;
+                User::insert($row);
+            }
+        } catch (\Throwable $e) {
+            error_log('UserController::save failed: ' . $e->getMessage() . ' | id=' . var_export($id, true));
+            $this->json(['success' => false, 'message' => __('errors.generic')], 500);
         }
 
         if ($this->isAjax()) {

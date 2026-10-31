@@ -21,9 +21,8 @@
                         <td class="text-center"><span class="badge text-bg-<?= $g['is_active'] ? 'success' : 'secondary' ?> small"><?= $g['is_active'] ? __('admin.active') : __('admin.inactive') ?></span></td>
                         <td class="text-end">
                             <a class="btn btn-sm btn-outline-primary" href="<?= e(url('admin/gallery/' . $g['id'] . '/edit')) ?>"><?= __('admin.edit') ?></a>
-                            <form class="d-inline" action="<?= e(url('admin/gallery/' . $g['id'])) ?>" method="post" onsubmit="return confirm('<?= e(__('admin.confirm_delete')) ?>')" style="margin:0">
+                            <form class="d-inline" action="<?= e(url('admin/gallery/' . $g['id'] . '/delete')) ?>" method="post" onsubmit="return confirm('<?= e(__('admin.confirm_delete')) ?>')" style="margin:0">
                                 <?= csrf_field() ?>
-                                <input type="hidden" name="_method" value="DELETE">
                                 <button class="btn btn-sm btn-outline-danger" type="submit"><?= __('admin.delete') ?></button>
                             </form>
                         </td>

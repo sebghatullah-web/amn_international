@@ -177,6 +177,7 @@ function availability_options(): array
 {
     return [
         'in_stock'      => __('availability.in_stock'),
+        'out_of_stock'  => __('availability.out_of_stock'),
         'made_to_order' => __('availability.made_to_order'),
         'unavailable'   => __('availability.unavailable'),
     ];

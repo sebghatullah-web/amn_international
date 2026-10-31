@@ -67,7 +67,16 @@ class App
             $path = preg_replace('#^/index\.php#', '', $path);
         }
 
-        return [$method, '/' . trim($path, '/')];
+        $path = '/' . trim($path, '/');
+
+        // Defensively support legacy delete forms that post _method=DELETE
+        // while routing them to the dedicated POST /delete action.
+        if ($method === 'POST' && strtoupper((string)($_POST['_method'] ?? '')) === 'DELETE'
+            && !preg_match('#/delete$#', $path)) {
+            $path .= '/delete';
+        }
+
+        return [$method, $path];
     }
 
     private function routes(Router $router): void

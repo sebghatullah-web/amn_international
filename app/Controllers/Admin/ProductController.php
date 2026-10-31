@@ -144,20 +144,40 @@ class ProductController extends AdminController
     }
     private function save(?int $id): void
     {
+        if (!Csrf::verify()) {
+            $this->json(['success' => false, 'message' => __('errors.csrf')], 419);
+        }
+
         $product = $id ? Product::find($id) : null;
         if ($id && !$product) {
             $this->json(['success' => false, 'message' => __('admin.no_results')], 404);
         }
 
-        $validator = new Validator($_POST, [
-            'name'              => 'required|min:2|max:150',
-            'slug'              => 'nullable|max:150',
-            'category_id'       => 'required|integer',
-            'short_description' => 'max:500',
-            'description'       => 'max:5000',
-            'country_of_origin' => 'max:100',
-            'price_usd'         => 'nullable|decimal',
-            'availability_status'=> 'in:in_stock,made_to_order,unavailable',
+        $request = $_POST;
+        if (empty($request['name']) && isset($request['title'])) {
+            $request['name'] = $request['title'];
+        }
+        if (empty($request['category_id']) && isset($request['category'])) {
+            $request['category_id'] = $request['category'];
+        }
+        if (empty($request['availability_status']) && isset($request['availability'])) {
+            $request['availability_status'] = $request['availability'];
+        }
+        if (($request['availability_status'] ?? '') === '') {
+            $request['availability_status'] = 'in_stock';
+        }
+
+        $validator = new Validator($request, [
+            'name'               => 'required|min:2|max:150',
+            'slug'               => 'nullable|max:150',
+            'category_id'        => 'required|integer',
+            'short_description'  => 'max:500',
+            'description'        => 'max:5000',
+            'country_of_origin'  => 'max:100',
+            'price_usd'          => 'nullable|decimal',
+            'availability_status'=> 'nullable|in:in_stock,out_of_stock,made_to_order,unavailable',
+            'seo_title'          => 'max:200',
+            'seo_description'    => 'max:300',
         ]);
 
         if ($validator->fails()) {
@@ -166,6 +186,7 @@ class ProductController extends AdminController
 
         $data = $validator->validated();
         $slug = Product::uniqueSlug($data['slug'] ?: $data['name'], $id);
+        $priceUsd = trim((string)($data['price_usd'] ?? ''));
 
         $row = [
             'name'                => mb_substr($data['name'], 0, 150),
@@ -174,7 +195,7 @@ class ProductController extends AdminController
             'short_description'   => mb_substr($data['short_description'] ?? '', 0, 500),
             'description'         => mb_substr($data['description'] ?? '', 0, 5000),
             'country_of_origin'   => mb_substr($data['country_of_origin'] ?? '', 0, 100),
-            'price_usd'           => $data['price_usd'] === '' ? null : (float)$data['price_usd'],
+            'price_usd'           => $priceUsd === '' ? null : (float)$priceUsd,
             'availability_status' => $data['availability_status'] ?? 'in_stock',
             'is_active'           => 1,
             'is_featured'         => isset($_POST['is_featured']) ? 1 : 0,

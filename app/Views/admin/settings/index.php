@@ -44,7 +44,7 @@ $val = function (string $key, string $default = '') use ($s) { return e($s[$key]
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Site language</label>
-                                <input type="text" name="site_language" class="form-control" value="<?= $val('site_language', 'en') ?>" disabled>
+                                <input type="text" name="site_language" class="form-control" value="<?= $val('site_language', 'en') ?>" readonly>
                                 <div class="form-text"><?= __('admin.lang_note') ?></div>
                             </div>
                             <div class="col-md-6">

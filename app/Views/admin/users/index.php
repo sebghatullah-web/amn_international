@@ -23,9 +23,8 @@
                         <td class="text-end">
                             <a class="btn btn-sm btn-outline-primary" href="<?= e(url('admin/users/' . $u['id'] . '/edit')) ?>"><?= __('admin.edit') ?></a>
                             <?php if ($u['id'] != \App\Core\Auth::id()): ?>
-                                <form class="d-inline" action="<?= e(url('admin/users/' . $u['id'])) ?>" method="post" onsubmit="return confirm('<?= e(__('admin.confirm_delete')) ?>')" style="margin:0">
+                                <form class="d-inline" action="<?= e(url('admin/users/' . $u['id'] . '/delete')) ?>" method="post" onsubmit="return confirm('<?= e(__('admin.confirm_delete')) ?>')" style="margin:0">
                                     <?= csrf_field() ?>
-                                    <input type="hidden" name="_method" value="DELETE">
                                     <button class="btn btn-sm btn-outline-danger" type="submit"><?= __('admin.delete') ?></button>
                                 </form>
                             <?php endif; ?>

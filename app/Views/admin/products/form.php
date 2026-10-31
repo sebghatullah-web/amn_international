@@ -5,6 +5,7 @@
     <div class="card-body">
         <form id="product-form" method="post" action="<?= e($mode === 'edit' ? url('admin/products/' . $product['id']) : url('admin/products')) ?>" enctype="multipart/form-data" novalidate>
             <?= csrf_field() ?>
+            <input type="hidden" name="_token" value="<?= e(csrf_token()) ?>">
             <?php if ($mode === 'edit'): ?><input type="hidden" name="_method" value="PUT"><?php endif; ?>
             <div class="row g-3 mb-4">
                 <div class="col-md-5">
@@ -226,13 +227,23 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.innerHTML = '<?= e(__('common.loading')) ?>...';
 
         var fd = new FormData(form);
+        var csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || document.querySelector('input[name="_token"]')?.value;
+        if (csrf) {
+            fd.set('_token', csrf);
+        }
 
         fetch(form.action, {
             method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-            body: fd
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json', 'X-CSRF-Token': csrf || '' },
+            body: fd,
+            credentials: 'same-origin'
         })
-            .then(function (r) { return r.json(); })
+            .then(function (r) { 
+                if (!r.ok) {
+                    return r.json().then(function (err) { throw err; });
+                }
+                return r.json();
+            })
             .then(function (data) {
                 btn.disabled = false;
                 btn.innerHTML = orig;
@@ -253,10 +264,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             })
-            .catch(function () {
+            .catch(function (err) {
                 btn.disabled = false;
                 btn.innerHTML = orig;
-                alert('<?= e(__('errors.generic')) ?>');
+                var msg = err && err.message ? err.message : '<?= e(__('errors.generic')) ?>';
+                alert(msg);
+                if (err && err.errors) {
+                    Object.keys(err.errors).forEach(function (field) {
+                        var input = form.elements[field];
+                        if (input && input.classList) {
+                            input.classList.add('is-invalid');
+                            if (input.nextElementSibling && input.nextElementSibling.classList.contains('invalid-feedback')) {
+                                input.nextElementSibling.textContent = err.errors[field];
+                            }
+                        }
+                    });
+                }
             });
     });
 });

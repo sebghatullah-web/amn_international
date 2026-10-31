@@ -32,7 +32,7 @@ class InquiryController extends AdminController
             $this->redirect('admin/inquiries');
         }
         if ($inquiry['status'] === 'new') {
-            Inquiry::updateById($id, ['status' => 'read']);
+            Inquiry::updateById($id, ['status' => 'read', 'updated_at' => date('Y-m-d H:i:s')]);
         }
         $this->view('admin/inquiries/show', [
             'title'     => __('admin.inquiries') . ' | ' . setting('company_name'),
@@ -54,7 +54,7 @@ class InquiryController extends AdminController
         if (!$inquiry) {
             $this->json(['success' => false, 'message' => __('admin.no_results')], 404);
         }
-        Inquiry::updateById($id, ['status' => $status]);
+        Inquiry::updateById($id, ['status' => $status, 'updated_at' => date('Y-m-d H:i:s')]);
         $this->json(['success' => true, 'message' => __('admin.saved')]);
     }
 

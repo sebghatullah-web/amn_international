@@ -55,7 +55,7 @@ class ProductController extends Controller
 
         $this->json([
             'success' => true,
-            'html'    => \App\Core\View::partial('products/_grid', ['products' => $result['rows']]),
+            'html'    => \App\Core\View::partial('partials/product-grid', ['products' => $result['rows']]),
             'total'   => $result['total'],
             'page'    => $result['page'],
             'pages'   => $result['pages'],

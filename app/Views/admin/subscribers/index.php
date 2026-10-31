@@ -17,9 +17,8 @@
                         <td><?= e($s['email']) ?></td>
                         <td class="small text-muted"><?= e(format_date($s['created_at'])) ?></td>
                         <td class="text-end">
-                            <form class="d-inline" action="<?= e(url('admin/subscribers/' . $s['id'])) ?>" method="post" onsubmit="return confirm('<?= e(__('admin.confirm_delete')) ?>')" style="margin:0">
+                            <form class="d-inline" action="<?= e(url('admin/subscribers/' . $s['id'] . '/delete')) ?>" method="post" onsubmit="return confirm('<?= e(__('admin.confirm_delete')) ?>')" style="margin:0">
                                 <?= csrf_field() ?>
-                                <input type="hidden" name="_method" value="DELETE">
                                 <button class="btn btn-sm btn-outline-danger" type="submit"><?= __('admin.delete') ?></button>
                             </form>
                         </td>

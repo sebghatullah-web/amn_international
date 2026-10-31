@@ -75,6 +75,10 @@ class GalleryController extends AdminController
 
     private function save(?int $id): void
     {
+        if (!Csrf::verify()) {
+            $this->json(['success' => false, 'message' => __('errors.csrf')], 419);
+        }
+
         $validator = new Validator($_POST, [
             'title'        => 'required|min:2|max:150',
             'group_name'   => 'max:80',
@@ -85,27 +89,46 @@ class GalleryController extends AdminController
             $this->json(['success' => false, 'message' => __('errors.generic'), 'errors' => $validator->errors()], 422);
         }
         $data = $validator->validated();
+        $slugBase = slugify($data['title']);
+        $slug = $slugBase;
+        $suffix = 1;
+        while (true) {
+            $existing = GalleryImage::findBy('slug', $slug);
+            if (!$existing || ($id && (int)$existing['id'] === $id)) {
+                break;
+            }
+            $slug = $slugBase . '-' . (++$suffix);
+        }
         $uploaded = Upload::image($_FILES['image'] ?? [], 'gallery');
-        if (!$uploaded['ok']) {
+        if (!$id && !$uploaded['ok']) {
             $this->json(['success' => false, 'message' => $uploaded['error']], 422);
         }
         $row = [
             'title'       => mb_substr($data['title'], 0, 150),
-            'group_name'  => mb_substr($data['group_name'] ?? '', 0, 80),
-            'path'        => $uploaded['path'],
+            'slug'        => mb_substr($slug, 0, 150),
+            'group_name'  => mb_substr($data['group_name'] ?? '', 0, 120),
             'alt'         => mb_substr($data['alt'] ?? $data['title'], 0, 200),
             'sort_order'  => (int)($data['sort_order'] ?? 0),
             'is_active'   => isset($data['is_active']) ? 1 : 0,
             'updated_at'  => date('Y-m-d H:i:s'),
         ];
 
-        if ($id) {
-            $old = GalleryImage::find($id);
-            Upload::delete($old['path']);
-            GalleryImage::updateById($id, $row);
-        } else {
-            $row['created_at'] = date('Y-m-d H:i:s');
-            GalleryImage::insert($row);
+        try {
+            if ($id) {
+                $old = GalleryImage::find($id);
+                if ($uploaded['ok']) {
+                    Upload::delete($old['path']);
+                    $row['path'] = $uploaded['path'];
+                }
+                GalleryImage::updateById($id, $row);
+            } else {
+                $row['path'] = $uploaded['path'];
+                $row['created_at'] = date('Y-m-d H:i:s');
+                GalleryImage::insert($row);
+            }
+        } catch (\Throwable $e) {
+            error_log('GalleryController::save failed: ' . $e->getMessage() . ' | id=' . var_export($id, true));
+            $this->json(['success' => false, 'message' => __('errors.generic')], 500);
         }
 
         if ($this->isAjax()) {
